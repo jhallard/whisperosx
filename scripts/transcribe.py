@@ -3,6 +3,7 @@ import openai
 import time
 import wave
 import signal
+import sys
 import os
 import threading
 import argparse
@@ -39,6 +40,11 @@ stream = audio.open(
 
 logger.info(f"Took {time.time() - before:.4f} seconds to initialize PyAudio")
 
+def make_sound() -> None:
+    # https://stackoverflow.com/questions/13941/python-sound-bell
+    sys.stdout.write('\a')
+    sys.stdout.flush()
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Record audio')
     parser.add_argument('--max-duration', type=int, default=30,
@@ -51,6 +57,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def record():
+    make_sound()
     stop_recording_event.set()
     logger.info("Recording...")
     last = time.time()
@@ -73,6 +80,7 @@ def stop_recording(signum=None, frame=None, output_filename: Optional[str] = Non
         # Already been stopped by signal handler or thread
         return
 
+    make_sound()
     logger.info("Finished recording, processing stream..")
     try:
         stop_recording_event.clear()

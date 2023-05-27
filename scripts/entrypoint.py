@@ -26,7 +26,7 @@ PIDFILE="/tmp/transcribe.pid"
 
 def start_transcription():
     logger.info("Starting transcription")
-    os.system("python3 /Users/jhallard/bin/transcribe.py")
+    os.system("/usr/local/bin/python3 /Users/jhallard/bin/transcribe.py")
 
 def stop_transcription():
     logger.info(f"Process {pid} is running")
