@@ -2,7 +2,6 @@ import pyaudio
 import time
 import argparse
 import wave
-import signal
 import os
 
 # Settings for the audio recording

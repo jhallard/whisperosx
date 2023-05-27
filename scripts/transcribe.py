@@ -3,7 +3,6 @@ import openai
 import time
 import wave
 import signal
-import sys
 import os
 import threading
 import argparse
@@ -40,11 +39,6 @@ stream = audio.open(
 
 logger.info(f"Took {time.time() - before:.4f} seconds to initialize PyAudio")
 
-def make_sound() -> None:
-    # https://stackoverflow.com/questions/13941/python-sound-bell
-    sys.stdout.write('\a')
-    sys.stdout.flush()
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Record audio')
     parser.add_argument('--max-duration', type=int, default=30,
@@ -57,7 +51,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def record():
-    make_sound()
     stop_recording_event.set()
     logger.info("Recording...")
     last = time.time()
@@ -69,9 +62,13 @@ def record():
         frames.append(data)
         time.sleep(0.01)
 
-    logger.info(f"Finished recording loop")
+    logger.info("Finished recording loop")
 
-def stop_recording(signum=None, frame=None, output_filename: Optional[str] = None):
+def stop_recording(
+    signum=None,
+    frame=None,
+    output_filename: Optional[str] = None
+):
 
     if not output_filename:
         raise ValueError("output_filename must be specified")
@@ -80,10 +77,13 @@ def stop_recording(signum=None, frame=None, output_filename: Optional[str] = Non
         # Already been stopped by signal handler or thread
         return
 
-    make_sound()
-    logger.info("Finished recording, processing stream..")
+    logger.info("Recording finished, processing stream..")
     try:
         stop_recording_event.clear()
+
+        # Wait for the stream to finish
+        # there must be a better way to do this...
+        time.sleep(0.1)
 
         # Stop Recording
         stream.stop_stream()
@@ -116,7 +116,7 @@ def output_transcript(transcript: str) -> None:
 
 def register_signal_handler(signal_handler: Callable) -> None:
     # Register the signal handler
-    print(f"Registering signal handler for SIGUSR1")
+    print("Registering signal handler for SIGUSR1")
     signal.signal(signal.SIGUSR1, signal_handler)
 
 
